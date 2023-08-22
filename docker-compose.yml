@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgis/postgis:13-master
+    restart: always
+    ports:
+      - "5555:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: engineTest888
+      POSTGRES_DB: zesty
+    volumes:
+      - ./init-db/:/docker-entrypoint-initdb.d/
+      - pg-data:/var/lib/postgresql/data
+  api:
+    image: starlingilcruz/zapi:latest
+    container_name: zesty-api
+    # build:
+    #   context: ./api
+    #   dockerfile: ./Dockerfile
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: '5432'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: engineTest888
+      POSTGRES_DB: zesty
+    depends_on:
+      - 'postgres'
+    ports:
+      - '8000:8000'
+  app:
+    image: starlingilcruz/zapp:latest
+    container_name: zesty-app
+    # build:
+    #   context: ./frontend
+    #   dockerfile: ./Dockerfile
+    volumes:
+      - ./frontend/src:/app/src
+    ports:
+       - "3000:3000"
+volumes:
+  pg-data:
